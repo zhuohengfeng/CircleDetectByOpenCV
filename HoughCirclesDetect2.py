@@ -40,6 +40,9 @@ def main():
     gray = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
     size = gray.shape
 
+    ret, thresh = cv2.threshold(gray, 127,255,cv2.THRESH_BINARY_INV)
+    cv2.imshow("thresh", thresh)
+
     # 调节对比度
     # OpenCV中亮度和对比度应用这个公式来计算：g(x) = αf(x) + β，其中：α(>0)、β常称为增益与偏置值，分别控制图片的对比度和亮度
     #calc_img = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
@@ -47,11 +50,11 @@ def main():
     #temp = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
     #calc_img = cv2.Canny(temp, 80, 90)  # apertureSize默认为3
 
-    plt.subplot(121), plt.imshow(gray, 'gray')
-    plt.xticks([]), plt.yticks([])
+    # plt.subplot(121), plt.imshow(gray, 'gray')
+    # plt.xticks([]), plt.yticks([])
 
     # hough transform 主要调
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT,
+    circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT,
                        dp=1,
                        minDist= 600, #min(size[0]/2, size[1]/2),
                        param1=100, #20
