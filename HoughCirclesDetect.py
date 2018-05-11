@@ -33,31 +33,32 @@ maxRadius，也有默认值0，表示圆半径的最大值。
 '''
 
 def main():
-    src_img = cv2.imread("./33.png")
+    src_img = cv2.imread("./11.png")
     dst_img = src_img.copy()
 
     # 灰度图像
     gray = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
     size = gray.shape
+    #ret, gray = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO_INV)
 
     # 调节对比度
     # OpenCV中亮度和对比度应用这个公式来计算：g(x) = αf(x) + β，其中：α(>0)、β常称为增益与偏置值，分别控制图片的对比度和亮度
-    #calc_img = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
+    gray = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
     # Canny边缘检测
-    #temp = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
-    #calc_img = cv2.Canny(temp, 80, 90)  # apertureSize默认为3
+    gray = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
+    #gray = cv2.Canny(gray, 80, 90)  # apertureSize默认为3
 
-    plt.subplot(121), plt.imshow(gray, 'gray')
-    plt.xticks([]), plt.yticks([])
+    #plt.subplot(121), plt.imshow(gray, 'gray')
+    #plt.xticks([]), plt.yticks([])
 
     # hough transform 主要调
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT,
-                       dp=1,
-                       minDist= 600, #min(size[0]/2, size[1]/2),
-                       param1=100, #20
-                       param2=30, #25
-                       minRadius=80, #20
-                       maxRadius=97 )#max(size[0], size[1])
+                       dp=1.1,
+                       minDist= min(size[0], size[1]),
+                       param1=15,
+                       param2=26,
+                       minRadius=80,
+                       maxRadius=150 )
 
     print("circles={}, size={}".format(circles, min(size[0]/2, size[1]/2)))
     if circles is not None and len(circles) != 0:
@@ -70,7 +71,7 @@ def main():
             cv2.circle(dst_img, (i[0], i[1]), 2, (0, 0, 255), 3)
 
 
-    cv2.imshow("calc_img", gray)
+    #cv2.imshow("calc_img", gray)
     cv2.imshow("Dst Img", dst_img)  # 显示处理后的函数
     cv2.waitKey(0)
     cv2.destroyAllWindows()
