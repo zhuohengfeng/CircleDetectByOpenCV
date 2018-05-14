@@ -39,13 +39,13 @@ def main():
     # 灰度图像
     gray = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
     size = gray.shape
-    #ret, gray = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO_INV)
+    ret, threshold = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO_INV)
 
     # 调节对比度
     # OpenCV中亮度和对比度应用这个公式来计算：g(x) = αf(x) + β，其中：α(>0)、β常称为增益与偏置值，分别控制图片的对比度和亮度
-    gray = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
+    #gray = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
     # Canny边缘检测
-    gray = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
+    #gray = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
     #gray = cv2.Canny(gray, 80, 90)  # apertureSize默认为3
 
     #plt.subplot(121), plt.imshow(gray, 'gray')
