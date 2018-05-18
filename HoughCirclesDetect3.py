@@ -33,7 +33,7 @@ maxRadius，也有默认值0，表示圆半径的最大值。
 '''
 
 def main():
-    src_img = cv2.imread("./22.png" ) #flags = cv2.IMREAD_REDUCED_COLOR_8
+    src_img = cv2.imread("./66.png" ) #flags = cv2.IMREAD_REDUCED_COLOR_8
     dst_img = src_img.copy()
 
     # 灰度图像
@@ -41,8 +41,8 @@ def main():
     size = gray.shape
     # 二值化
     #ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO_INV)
-    ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY)
-    #ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+    ret, binary = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY)
+    #ret, binary = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
     #ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_TRUNC)
     #ret, binary = cv2.threshold(gray, 127, 255, cv2.THRESH_TOZERO)
 
@@ -50,7 +50,7 @@ def main():
     # image就是返回的原图
     image, contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     #print("contours={}".format(contours[0]))
-    contours2 = [x for x in contours if cv2.contourArea(x) < 50000 and cv2.contourArea(x) > 10000]
+    contours2 = [x for x in contours if cv2.contourArea(x) < 50000 and cv2.contourArea(x) > 1000]
 
     for contour in contours2:
         x, y, w, h = cv2.boundingRect(contour)
@@ -90,7 +90,7 @@ def main():
     #         cv2.circle(dst_img, (i[0], i[1]), 2, (0, 0, 255), 3)
     #
     #
-    # cv2.imshow("calc_img", inputImage)
+    cv2.imshow("calc_img", binary)
     cv2.imshow("Dst Img", dst_img)  # 显示处理后的函数
     cv2.waitKey(0)
     cv2.destroyAllWindows()
