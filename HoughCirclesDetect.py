@@ -33,7 +33,7 @@ maxRadius，也有默认值0，表示圆半径的最大值。
 '''
 
 def main():
-    src_img = cv2.imread("a1.png")
+    src_img = cv2.imread("1.jpg")
     dst_img = src_img.copy()
     # x0, y0(240, 165)  x1, y1(392:280) ==> [y0:y1, x0:x1]
     #copyImg = src_img[150:290, 240:400]
@@ -51,21 +51,22 @@ def main():
     for contour in contours2:
         x, y, w, h = cv2.boundingRect(contour)
         print("rect={},{},{},{}".format(x, y, w, h))
-        copyImg = gray[y:y+h, x:x+w]
+        copyImg = gray[y-5:y+h+5, x-5:x+w+5]
 
 
-    binary = cv2.bilateralFilter(copyImg, 9, 75, 75)
+    #binary = copyImg#cv2.bilateralFilter(copyImg, 9, 75, 75)
     #binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 123, 2)
-    #binary = cv2.medianBlur(binary, 3)
+    #binary = cv2.medianBlur(copyImg, 1.5)
+    binary = cv2.GaussianBlur(copyImg,(11,11),0)
 
     # hough transform 主要调 1.5, 100, 130, 38, 20, 300
     circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT,
-                       dp=1.5,
-                       minDist= 100,
-                       param1=130,
-                       param2=38,
-                       minRadius=0,
-                       maxRadius=0)
+                       dp=1.5,       #1.5
+                       minDist= 100, #100
+                       param1=30,   #130
+                       param2=50,    #38
+                       minRadius=0,  #0
+                       maxRadius=0)  #0
 
     print("circles={}, size={}".format(circles, min(size[0]/2, size[1]/2)))
     if circles is not None and len(circles) != 0:

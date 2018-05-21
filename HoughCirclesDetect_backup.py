@@ -33,34 +33,39 @@ maxRadius，也有默认值0，表示圆半径的最大值。
 '''
 
 def main():
-    src_img = cv2.imread("./33.png")
+    src_img = cv2.imread("a3.png")
     dst_img = src_img.copy()
-
+    # x0, y0(240, 165)  x1, y1(392:280) ==> [y0:y1, x0:x1]
+    #copyImg = src_img[150:290, 240:400]
     # 灰度图像
     gray = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
+    # 截取图片 rect=x240,y165,w152,h115
     size = gray.shape
 
-    ret, thresh = cv2.threshold(gray, 127,255,cv2.THRESH_BINARY_INV)
-    cv2.imshow("thresh", thresh)
+    # 二值化
+    threshold = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 221, 2)
+    image, contours, hierarchy = cv2.findContours(threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours2 = [x for x in contours if cv2.contourArea(x) < 100000 and cv2.contourArea(x) > 5000]
 
-    # 调节对比度
-    # OpenCV中亮度和对比度应用这个公式来计算：g(x) = αf(x) + β，其中：α(>0)、β常称为增益与偏置值，分别控制图片的对比度和亮度
-    #calc_img = np.uint8(np.clip((1.5 * gray + 10), 0, 255))
-    # Canny边缘检测
-    #temp = cv2.GaussianBlur(gray, (3, 3), 0)  # 高斯平滑处理原图像降噪
-    #calc_img = cv2.Canny(temp, 80, 90)  # apertureSize默认为3
+    copyImg = None
+    for contour in contours2:
+        x, y, w, h = cv2.boundingRect(contour)
+        print("rect={},{},{},{}".format(x, y, w, h))
+        copyImg = gray[y:y+h, x:x+w]
 
-    # plt.subplot(121), plt.imshow(gray, 'gray')
-    # plt.xticks([]), plt.yticks([])
 
-    # hough transform 主要调
-    circles = cv2.HoughCircles(thresh, cv2.HOUGH_GRADIENT,
-                       dp=1,
-                       minDist= 600, #min(size[0]/2, size[1]/2),
-                       param1=100, #20
-                       param2=30, #25
-                       minRadius=80, #20
-                       maxRadius=97 )#max(size[0], size[1])
+    binary = cv2.bilateralFilter(copyImg, 9, 75, 75)
+    #binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 123, 2)
+    #binary = cv2.medianBlur(binary, 3)
+
+    # hough transform 主要调 1.5, 100, 130, 38, 20, 300
+    circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT,
+                       dp=1.5,
+                       minDist= 100,
+                       param1=130,
+                       param2=38,
+                       minRadius=0,
+                       maxRadius=0)
 
     print("circles={}, size={}".format(circles, min(size[0]/2, size[1]/2)))
     if circles is not None and len(circles) != 0:
@@ -68,13 +73,13 @@ def main():
         # 画圆
         for i in circles[0, :]:
             # draw the outer circle
-            cv2.circle(dst_img, (i[0], i[1]), i[2], (0, 255, 0), 2)
+            cv2.circle(copyImg, (i[0], i[1]), i[2], (0, 255, 0), 2)
             # draw the center of the circle
-            cv2.circle(dst_img, (i[0], i[1]), 2, (0, 0, 255), 3)
+            cv2.circle(copyImg, (i[0], i[1]), 2, (0, 0, 255), 3)
 
 
-    cv2.imshow("calc_img", gray)
-    cv2.imshow("Dst Img", dst_img)  # 显示处理后的函数
+    cv2.imshow("calc_img", copyImg)
+    cv2.imshow("Dst Img", binary)  # 显示处理后的函数
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 

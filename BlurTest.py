@@ -6,7 +6,21 @@
 import cv2
 import numpy as np
 
-src_img = cv2.imread('a2.png')
+
+def strokeEdges(src, dst, blurKsize = 7, edgeKsize = 5):
+    if blurKsize >= 3:
+        blurredSrc = cv2.medianBlur(src, blurKsize)
+        graySrc = cv2.cvtColor(blurredSrc, cv2.COLOR_BGR2GRAY)
+    else:
+        graySrc = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    cv2.Laplacian(graySrc, cv2.CV_8U, graySrc, ksize = edgeKsize)
+    normalizedInverseAlpha = (1.0 / 255) * (255 - graySrc)
+    channels = cv2.split(src)
+    for channel in channels:
+        channel[:] = channel * normalizedInverseAlpha
+    cv2.merge(channels, dst)
+
+src_img = cv2.imread('1.jpg')
 dst_img = src_img.copy()
 
 # 各种模糊，中值模糊效果比较好
@@ -15,46 +29,54 @@ dst_img = src_img.copy()
 #blurImg = cv2.bilateralFilter(GrayImage,9,75,75)
 #GrayImage = cv2.blur(GrayImage, (3, 3))
 #Canny = cv2.Canny(blurImg, 30, 30)  # apertureSize默认为3
-src_img = cv2.medianBlur(src_img,11)
+#src_img = cv2.medianBlur(src_img,11)
 
 # 模糊后转化成灰度图
-GrayImage = cv2.cvtColor(src_img, cv2.COLOR_BGR2GRAY)
+GrayImage = M
+strokeEdges(src_img, GrayImage)
 size = GrayImage.shape
-
+binary = GrayImage
 #ret, binary = cv2.threshold(GrayImage, 127, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU      )
 # 11为block size，2为C值
-binary = cv2.adaptiveThreshold(GrayImage,255,cv2.ADAPTIVE_THRESH_MEAN_C , cv2.THRESH_BINARY,221,2 ) #11,2
+#binary = cv2.adaptiveThreshold(GrayImage,255,cv2.ADAPTIVE_THRESH_MEAN_C , cv2.THRESH_BINARY,221,2 ) #11,2
 #binary = cv2.adaptiveThreshold(GrayImage,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C , cv2.THRESH_BINARY,101,2)
 #binary = cv2.medianBlur(binary,11)
 #binary = cv2.medianBlur(binary,5)
 
-'''
+
+#k3 = ndimage.convolve(img, kernel_3x3)
+#k5 = ndimage.convolve(img.kernel_5x5)
+
+#blurred = cv2.GaussianBlur(GrayImage, (11, 11), 100)
+#binary = GrayImage - blurred
+
+
 image, contours, hierarchy = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-contours2 = [x for x in contours if cv2.contourArea(x) < 50000 and cv2.contourArea(x) > 10000]
+contours2 = [x for x in contours if cv2.contourArea(x) < 50000 and cv2.contourArea(x) > 1000]
 
 for contour in contours2:
     x, y, w, h = cv2.boundingRect(contour)
     print("rect={},{},{},{}".format(x, y, w, h))
     cv2.rectangle(dst_img, (x, y), (x + w, y + h), (255, 0, 255), 2)
-'''
-# hough transform 主要调
-circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT,
-                           dp=1.5,
-                           minDist=500,
-                           param1=130,
-                           param2=38,
-                           minRadius=20,
-                           maxRadius=300)
 
-print("circles={}, size={}".format(circles, min(size[0] / 2, size[1] / 2)))
-if circles is not None and len(circles) != 0:
-    circles = np.uint16(np.around(circles))
-    # 画圆
-    for i in circles[0, :]:
-        # draw the outer circle
-        cv2.circle(dst_img, (i[0], i[1]), i[2], (0, 255, 0), 2)
-        # draw the center of the circle
-        cv2.circle(dst_img, (i[0], i[1]), 2, (0, 0, 255), 3)
+# # hough transform 主要调
+# circles = cv2.HoughCircles(binary, cv2.HOUGH_GRADIENT,
+#                            dp=1.5,
+#                            minDist=500,
+#                            param1=130,
+#                            param2=38,
+#                            minRadius=20,
+#                            maxRadius=300)
+#
+# print("circles={}, size={}".format(circles, min(size[0] / 2, size[1] / 2)))
+# if circles is not None and len(circles) != 0:
+#     circles = np.uint16(np.around(circles))
+#     # 画圆
+#     for i in circles[0, :]:
+#         # draw the outer circle
+#         cv2.circle(dst_img, (i[0], i[1]), i[2], (0, 255, 0), 2)
+#         # draw the center of the circle
+#         cv2.circle(dst_img, (i[0], i[1]), 2, (0, 0, 255), 3)
 
 
 
